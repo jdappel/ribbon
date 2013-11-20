@@ -146,11 +146,11 @@ public class RestClient extends AbstractLoadBalancerAwareClient<HttpRequest, Htt
                 ApacheHttpClient4Config.PROPERTY_READ_TIMEOUT,
                 Integer.parseInt(String.valueOf(ncc.getProperty(CommonClientConfigKey.ReadTimeout))));
 
-        this.restClient = apacheHttpClientSpecificInitialization();
+        this.restClient = apacheHttpClientSpecificInitialization(clientConfig);
     }
 
-    protected Client apacheHttpClientSpecificInitialization() {
-        httpClient4 = NFHttpClientFactory.getNamedNFHttpClient(restClientName, true);
+    protected Client apacheHttpClientSpecificInitialization(IClientConfig clientConfig) {
+        httpClient4 = NFHttpClientFactory.getNamedNFHttpClient(restClientName, clientConfig, true);
 
         if (httpClient4 instanceof AbstractHttpClient) {
             // DONT use our NFHttpClient's default Retry Handler since we have

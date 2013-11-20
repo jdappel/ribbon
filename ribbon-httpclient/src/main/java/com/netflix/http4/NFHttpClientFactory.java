@@ -24,6 +24,9 @@ import org.apache.commons.collections.keyvalue.MultiKey;
 import org.apache.http.client.HttpClient;
 
 import com.netflix.servo.monitor.Monitors;
+import com.netflix.client.config.IClientConfig;
+import com.netflix.client.config.DefaultClientConfigImpl;
+import com.netflix.client.config.CommonClientConfigKey;
 
 /**
  * Factory class to get an instance of NFHttpClient
@@ -49,19 +52,23 @@ public class NFHttpClientFactory {
 		}
 		return client;			
 	}
+	
+	 public static NFHttpClient getNamedNFHttpClient(String name) {
+     return getNamedNFHttpClient(name, new DefaultClientConfigImpl(), true);
+	 }
 
-    public static NFHttpClient getNamedNFHttpClient(String name) {
-        return getNamedNFHttpClient(name, true);
+    public static NFHttpClient getNamedNFHttpClient(String name, IClientConfig config) {
+        return getNamedNFHttpClient(name, config, true);
     }
 
-	public static NFHttpClient getNamedNFHttpClient(String name, boolean registerMonitor){		
+	public static NFHttpClient getNamedNFHttpClient(String name, IClientConfig config, boolean registerMonitor){		
 		NFHttpClient client = namedClientMap.get(name);		
 		//avoid creating multiple HttpClient instances 
 		if (client == null){
 		    synchronized (lock) {
 		        client = namedClientMap.get(name);       
 		        if (client == null){
-        			client = new NFHttpClient(name);
+        			client = new NFHttpClient(name, config.getPropertyAsBoolean(CommonClientConfigKey.FollowRedirects, true));
         			namedClientMap.put(name,client);
         			if (registerMonitor) {
         			    Monitors.registerObject("HttpClient_" + name, client);

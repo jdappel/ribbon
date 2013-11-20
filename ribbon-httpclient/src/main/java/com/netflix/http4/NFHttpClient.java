@@ -70,6 +70,8 @@ public class NFHttpClient extends DefaultHttpClient {
 	private static AtomicInteger numNonNamedHttpClients = new AtomicInteger();
 
 	private final String name;
+	
+	private boolean followRedirects = Boolean.TRUE;
 
 	ConnectionPoolCleaner connPoolCleaner;
 
@@ -94,9 +96,10 @@ public class NFHttpClient extends DefaultHttpClient {
 		init();
 	}
 
-	protected NFHttpClient(String name){
+	protected NFHttpClient(String name, boolean followRedirects){
 		super(new MonitoredConnectionManager(name));
 		this.name = name;
+		this.followRedirects = followRedirects;
 		init();
 	}
 
@@ -106,6 +109,7 @@ public class NFHttpClient extends DefaultHttpClient {
 		HttpProtocolParams.setContentCharset(params, "UTF-8");  
 		params.setParameter(ClientPNames.CONNECTION_MANAGER_FACTORY_CLASS_NAME, 
 				ThreadSafeClientConnManager.class.getName());
+		params.setParameter(ClientPNames.HANDLE_REDIRECTS, this.followRedirects);
 
 		// set up default headers
 		List<Header> defaultHeaders = new ArrayList<Header>();
